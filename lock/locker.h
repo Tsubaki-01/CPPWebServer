@@ -5,6 +5,8 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include <exception>
+#include <condition_variable>
+#include <mutex>
 
 // mutex互斥锁
 class locker
@@ -37,7 +39,7 @@ private:
 };
 
 // PV-sem信号量
-class sem
+/* class sem
 {
 public:
     sem()
@@ -64,6 +66,34 @@ public:
     }
 private:
     sem_t m_sem;
+}; */
+
+// PV-sem信号量--C++11
+class Semaphore
+{
+public:
+    Semaphore(int count = 0) :m_count(count) {};
+    void exchange(int count)
+    {
+        std::unique_lock<std::mutex> lock(m_mtx);
+        m_count = count;
+    }
+    void signal()
+    {
+        std::unique_lock<std::mutex> lock(m_mtx);
+        ++m_count;
+        m_cv.notify_one();
+    }
+    void wait()
+    {
+        std::unique_lock<std::mutex> lock(m_mtx);
+        m_cv.wait(lock, [this] {return m_count > 0;});
+        --m_count;
+    }
+private:
+    int m_count;
+    std::mutex m_mtx;
+    std::condition_variable m_cv;
 };
 
 // condVar条件变量

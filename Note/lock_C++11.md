@@ -189,3 +189,94 @@ int main() {
 }
 ```
 
+### 6.  信号量
+
+C++11 标准库中没有直接包含信号量（semaphore）的实现，但在 C++20 中引入了 `std::counting_semaphore` 和 `std::binary_semaphore`。在 C++11 中，如果需要使用信号量，可以通过第三方库（如 Boost）或使用 POSIX 信号量（在类 Unix 系统上）。
+
+#### 使用 `std::counting_semaphore`（C++20）
+
+如果可以使用 C++20 标准，标准库中提供了 `std::counting_semaphore` 和 `std::binary_semaphore`。
+
+```C++
+#include <iostream>
+#include <thread>
+#include <semaphore>
+
+std::counting_semaphore<3> sem(3);  // 初始化信号量，允许最多 3 个线程同时工作
+
+void worker(int id) {
+    sem.acquire();  // 等待信号量
+    std::cout << "Worker " << id << " is working" << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(1));  // 模拟工作
+    sem.release();  // 释放信号量
+}
+
+int main() {
+    std::thread workers[5];
+    for (int i = 0; i < 5; ++i) {
+        workers[i] = std::thread(worker, i);
+    }
+
+    for (auto& worker : workers) {
+        worker.join();
+    }
+
+    return 0;
+}
+```
+
+#### 自定义信号量类（C++11）
+
+在没有信号量支持的情况下，可以使用互斥锁和条件变量来自行实现一个简单的信号量。
+
+```C++
+#include <iostream>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+
+class Semaphore {
+public:
+    Semaphore(int count = 0) : count(count) {}
+
+    void signal() {
+        std::unique_lock<std::mutex> lock(mtx);
+        ++count;
+        cv.notify_one();
+    }
+
+    void wait() {
+        std::unique_lock<std::mutex> lock(mtx);
+        cv.wait(lock, [this]() { return count > 0; });
+        --count;
+    }
+
+private:
+    std::mutex mtx;
+    std::condition_variable cv;
+    int count;
+};
+
+Semaphore sem(3);  // 初始化信号量，允许最多 3 个线程同时工作
+
+void worker(int id) {
+    sem.wait();  // 等待信号量
+    std::cout << "Worker " << id << " is working" << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(1));  // 模拟工作
+    sem.signal();  // 释放信号量
+}
+
+int main() {
+    std::thread workers[5];
+    for (int i = 0; i < 5; ++i) {
+        workers[i] = std::thread(worker, i);
+    }
+
+    for (auto& worker : workers) {
+        worker.join();
+    }
+
+    return 0;
+}
+```
+
