@@ -99,64 +99,69 @@ private:
     pthread_cond_t m_cond;
 };
 
-// wrlock读写锁
-class locker
+// rwlock读写锁
+class rwlock
 {
 public:
-    locker()
+    rwlock()
     {
-        if (pthread_mutex_init(&m_mutex, NULL) != 0)
+        if (pthread_rwlock_init(&m_rwlock, NULL) != 0)
             throw std::exception();
     }
-    ~locker()
+    ~rwlock()
     {
-        pthread_mutex_destroy(&m_mutex);
+        pthread_rwlock_destroy(&m_rwlock);
     }
-    bool lock()
+    bool rdlock()
     {
-        return pthread_mutex_lock(&m_mutex) == 0;
+        return pthread_rwlock_rdlock(&m_rwlock);
+    }
+    bool wrlock()
+    {
+        return pthread_rwlock_wrlock(&m_rwlock);
     }
     bool unlock()
     {
-        return pthread_mutex_unlock(&m_mutex) == 0;
+        return pthread_rwlock_unlock(&m_rwlock);
     }
-    pthread_mutex_t* get()
+    pthread_rwlock_t* get()
     {
-        return &m_mutex;
+        return &m_rwlock;
     }
 
 private:
-    pthread_mutex_t m_mutex;
+    pthread_rwlock_t m_rwlock;
 };
 
 // spinlock自旋锁
-class locker
+class spin
 {
 public:
-    locker()
+    spin()
     {
-        if (pthread_mutex_init(&m_mutex, NULL) != 0)
+        if (pthread_spin_init(&m_spin, 0) != 0)
             throw std::exception();
     }
-    ~locker()
+    ~spin()
     {
-        pthread_mutex_destroy(&m_mutex);
+        pthread_spin_destroy(&m_spin);
     }
     bool lock()
     {
-        return pthread_mutex_lock(&m_mutex) == 0;
+        return pthread_spin_lock(&m_spin) == 0;
     }
     bool unlock()
     {
-        return pthread_mutex_unlock(&m_mutex) == 0;
+        return pthread_spin_unlock(&m_spin) == 0;
     }
-    pthread_mutex_t* get()
+    pthread_spinlock_t* get()
     {
-        return &m_mutex;
+        return &m_spin;
     }
 
+
 private:
-    pthread_mutex_t m_mutex;
+    pthread_spinlock_t m_spin;
 };
 
 #endif // LOCKER_H
