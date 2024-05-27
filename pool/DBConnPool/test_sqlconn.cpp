@@ -5,11 +5,18 @@ int main() {
     const char* host = "localhost";
     const char* user = "root";
     const char* pwd = "password";
-    const char* dbName = "test";
+    const char* dbName = "dbName";
     int port = 3306;
+    // MYSQL* sql = mysql_init(nullptr);
+    // sql = mysql_real_connect(sql, host, user, pwd, dbName, 3306, NULL, 0);
+    // if (!sql)
+    //     std::cout << "error" << std::endl;
+
+    // mysql_library_end();
 
     // 初始化连接池
     SqlConnPool::instance().init(host, port, user, pwd, dbName);
+
 
     // 获取连接并执行查询
     MYSQL* conn = SqlConnPool::instance().getConn();

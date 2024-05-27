@@ -57,7 +57,7 @@
 
 线程属性通过 `pthread_attr_t` 类型的对象来管理。这些属性包括线程的堆栈大小、分离状态、调度策略和优先级等。
 
-#### 常用的线程属性函数
+**常用的线程属性函数**
 
 - **初始化和销毁属性对象**：
 
@@ -87,12 +87,12 @@ int pthread_attr_getdetachstate(const pthread_attr_t *attr, int *detachstate);
 1. **可连接（Joinable）**：默认状态。主线程可以使用 `pthread_join` 等待子线程结束，并获取其退出状态。
 2. **分离（Detached）**：线程一旦结束，其资源会自动释放，不能使用 `pthread_join` 等待该线程。
 
-#### 分离状态的常量
+**分离状态的常量**
 
 - `PTHREAD_CREATE_JOINABLE`：可连接状态。
 - `PTHREAD_CREATE_DETACHED`：分离状态。
 
-### 使用示例
+**使用示例**
 
 下面是一个示例，展示如何使用线程属性和分离状态属性创建线程。
 
@@ -151,5 +151,109 @@ int main() {
 
     return EXIT_SUCCESS;
 }
+```
+
+
+
+### pthread函数参数问题
+
+在使用 `pthread_create` 创建线程时，确实会遇到一些常见的陷阱，尤其是在使用 C++ 类成员函数作为线程函数时。以下是详细介绍及解决方案：
+
+**1. 函数原型**
+
+```C++
+#include <pthread.h>
+
+int pthread_create(pthread_t *thread_tid,                 // 返回新生成的线程的id
+                   const pthread_attr_t *attr,            // 指向线程属性的指针, 通常设置为NULL
+                   void * (*start_routine) (void *),      // 处理线程函数的地址
+                   void *arg);                            // start_routine()中的参数
+
+```
+
+**2. 类成员函数的问题**
+
+在 C++ 中，类成员函数默认带有一个 `this` 指针，指向对象本身。因此，它们的实际签名并不是简单的 `void* (void*)`，而是 **`void* (ClassName::*)(void*)`**。这就导致不能直接将非静态成员函数传递给 `pthread_create`。
+
+**3. 解决方法**
+
+**方法一：使用静态成员函数**
+
+将线程函数定义为静态成员函数，因为静态成员函数不带有 `this` 指针。
+
+```C++
+#include <pthread.h>
+#include <iostream>
+
+class MyClass {
+public:
+    MyClass() {
+        // 创建线程，传递静态成员函数
+        pthread_create(&thread_tid, nullptr, threadFuncWrapper, this);
+    }
+
+    static void* threadFuncWrapper(void* arg) {
+        MyClass* self = static_cast<MyClass*>(arg);
+        self->threadFunc();
+        return nullptr;
+    }
+
+    void threadFunc() {
+        // 处理线程任务
+        std::cout << "Thread function running!" << std::endl;
+    }
+
+private:
+    pthread_t thread_tid;
+};
+
+int main() {
+    MyClass myClassInstance;
+    pthread_exit(nullptr); // 等待线程结束
+    return 0;
+}
+
+```
+
+在上面的代码中，`threadFuncWrapper` 是一个静态成员函数，它作为 `pthread_create` 的第三个参数。这个函数将类的实例传递给 `threadFuncWrapper`，然后调用实例的成员函数 `threadFunc`。
+
+**方法二：使用全局函数和`std::bind`**
+
+另一种解决方案是使用一个全局函数，并结合 `std::bind` 或 `std::function` 来传递成员函数。
+
+```c++
+#include <pthread.h>
+#include <iostream>
+#include <functional>
+
+class MyClass {
+public:
+    MyClass() {
+        auto boundFunc = std::bind(&MyClass::threadFunc, this);
+        pthread_create(&thread_tid, nullptr, threadFuncWrapper, &boundFunc);
+        // pthread_create(&thread_tid, nullptr, threadFuncWrapper, &threadFunc); // "void (MyClass::*)()" 类型的实参与 "void *" 类型的形参不兼容
+    }
+
+    void threadFunc() {
+        // 处理线程任务
+        std::cout << "Thread function running!" << std::endl;
+    }
+
+private:
+    pthread_t thread_tid;
+
+    static void* threadFuncWrapper(void* arg) {
+        auto func = static_cast<std::function<void()>*>(arg);
+        (*func)();
+        return nullptr;
+    }
+};
+
+int main() {
+    MyClass myClassInstance;
+    pthread_exit(nullptr); // 等待线程结束
+    return 0;
+}
+
 ```
 

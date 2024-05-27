@@ -67,11 +67,11 @@ int SqlConnPool::getFreeConnCount()
 // 初始化连接池
 void SqlConnPool::init(const char* host, int port,
     const char* user, const char* pwd,
-    const char* dbName, int connSize = defaultConnSize)
+    const char* dbName, int connSize)
 {
     assert(connSize > 0);
 
-    for (int i = 0;i < connSize;i++)
+    for (size_t i = 0;i < connSize;i++)
     {
         MYSQL* sql = mysql_init(nullptr);
         if (!sql)

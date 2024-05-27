@@ -36,7 +36,7 @@ public:
     }
 private:
     SqlConnPool();
-    ~SqlConnPool() = default;
+    ~SqlConnPool();
 
     int MAX_CONN_; // 最大连接数
     int usedCount_; // 已使用连接数
