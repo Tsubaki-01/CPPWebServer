@@ -18,7 +18,7 @@ public:
     ThreadPool(ThreadPool&&) = default;
     ~ThreadPool();
 
-    void worker(void* arg);
+    void worker();
 
     // 添加任务到任务队列
     template<class T>
@@ -28,54 +28,60 @@ public:
 private:
     std::mutex mtx_; // 管理tasks的互斥锁
     std::condition_variable cv_;
-    bool isClosed_; // 多线程情况下，初始化线程池时后面的线程创建时，线程池可能已经被释放删除，需要检查
+    bool isClosed_; // 关闭线程  // 多线程情况下，初始化线程池时后面的线程创建时，线程池可能已经被释放删除，需要检查
 
-    std::vector<std::thread*> threadPool;
+    std::vector<std::thread> threadPool;
     std::queue < std::function <void()>> tasks_; // 任务队列
 
 };
 
 
-ThreadPool::ThreadPool(size_t threadNum)
+ThreadPool::ThreadPool(size_t threadNum) :isClosed_(false)
 {
     assert(threadNum > 0);
     threadPool.resize(threadNum);
     // 创建线程池
     for (size_t i = 0;i < threadNum;i++)
     {
-        // std::lock_guard<std::mutex> lock(mtx_);
-        threadPool[i] = &std::thread(worker, this);
-        threadPool[i]->detach();
+        threadPool.emplace_back(std::thread(&worker, this));
+        // threadPool[i].detach();
+        /* 调用detach表示thread对象和其表示的线程完全分离，即销毁这个对象了，就不能用threadPool[i]表示？不能用容器管理了 */
     }
 }
 
 ThreadPool::~ThreadPool()
 {
-    std::lock_guard<std::mutex> lock(mtx_);
-    isClosed_ = true;
-    cv_.notify_all(); // 执行任务队列中的剩余任务
+    {
+        std::lock_guard<std::mutex> lock(mtx_);
+        isClosed_ = true;
+    }
+    cv_.notify_all(); // 退出线程
+    for (std::thread& thread : threadPool)
+    {
+        if (thread.joinable())
+        {
+            thread.join();
+        }
+    }
 }
 
-void ThreadPool::worker(void* arg)
+void ThreadPool::worker()
 {
-    ThreadPool* pool = reinterpret_cast<ThreadPool*> (arg);
-    std::unique_lock<std::mutex> lock(pool->mtx_);
 
     while (true)
     {
-        if (!pool->tasks_.empty())
+        std::function<void()> task;
         {
-            auto task = pool->tasks_.front();
-            pool->tasks_.pop();
-            lock.unlock(); // 待任务执行完成后再加锁
-            task(); // 执行任务
-            lock.lock();
+            std::unique_lock<std::mutex> lock(mtx_);
+            cv_.wait(lock, [this] { return isClosed_ || !tasks_.empty(); }); // 除关闭线程池外，只有任务队列为空时才等待
+            if (isClosed_ && tasks_.empty())
+            {
+                return; // 退出线程
+            }
+            task = std::move(tasks_.front());
+            tasks_.pop();
         }
-        else if (pool->isClosed_) break; // 1.初始化线程池时后面的线程创建时，线程池可能已经被释放删除 2.关闭线程
-        else // 任务队列为空，进入等待
-        {
-            pool->cv_.wait(lock);
-        }
+        task(); // 执行任务
     }
 }
 
