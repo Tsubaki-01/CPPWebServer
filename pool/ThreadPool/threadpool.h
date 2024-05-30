@@ -39,7 +39,6 @@ private:
 ThreadPool::ThreadPool(size_t threadNum) :isClosed_(false)
 {
     assert(threadNum > 0);
-    threadPool.resize(threadNum);
     // 创建线程池
     for (size_t i = 0;i < threadNum;i++)
     {
