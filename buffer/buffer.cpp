@@ -27,6 +27,10 @@ const char* Buffer::curPtr() const
     return beginPtr_() + readIndex_;
 }; // 获取当前读指针位置
 
+const char* Buffer::writePtr() const
+{
+    return beginPtr_() + writeIndex_;
+};
 
 void Buffer::ensureWriteable(size_t len)
 {
@@ -49,7 +53,7 @@ void Buffer::retrieve(size_t len)
 }; // 更新readIndex_
 
 
-void Buffer::retrieve(const char* end)
+void Buffer::retrieveUntil(const char* end)
 {
     assert(curPtr() < end);
     retrieve(end - curPtr());

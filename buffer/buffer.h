@@ -26,11 +26,12 @@ public:
     size_t prependableBytes() const; // 获取缓冲区预置区域的大小,该区域即是已经读完了的区域
 
     const char* curPtr() const; // 获取当前读指针位置
+    const char* writePtr() const;
     void ensureWriteable(size_t len); // 确保有足够的可读区域
     void hasWritten(size_t len); // 更新writeIndex_
 
     void retrieve(size_t len); // 更新readIndex_
-    void retrieve(const char* end); // 更新readIndex_
+    void retrieveUntil(const char* end); // 更新readIndex_
     void retrieveAll(); // 更新
     std::string retrieveAllToString(); // 更新
 
