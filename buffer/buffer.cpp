@@ -22,7 +22,7 @@ size_t Buffer::prependableBytes() const
 
 
 
-const char* Buffer::curPtr() const
+const char* Buffer::readPtr() const
 {
     return beginPtr_() + readIndex_;
 }; // 获取当前读指针位置
@@ -55,8 +55,8 @@ void Buffer::retrieve(size_t len)
 
 void Buffer::retrieveUntil(const char* end)
 {
-    assert(curPtr() < end);
-    retrieve(end - curPtr());
+    assert(readPtr() < end);
+    retrieve(end - readPtr());
 }; // 更新readIndex_
 
 
@@ -98,7 +98,7 @@ void Buffer::append(const std::string& str)
 
 void Buffer::append(const Buffer& anotherBuff)
 {
-    append(anotherBuff.curPtr(), anotherBuff.readableBytes());
+    append(anotherBuff.readPtr(), anotherBuff.readableBytes());
 };
 
 
@@ -145,7 +145,7 @@ ssize_t Buffer::readFd(int fd, int* errNo)
 ssize_t Buffer::writeFd(int fd, int* errNo)
 {
     size_t readable = readableBytes();
-    ssize_t len = write(fd, curPtr(), readable);
+    ssize_t len = write(fd, readPtr(), readable);
     if (len < 0)
         *errNo = errno;
     else readIndex_ += len;

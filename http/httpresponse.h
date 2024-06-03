@@ -47,7 +47,7 @@ private:
 
     static const std::unordered_map<std::string, std::string> SUFFIX_TYPE; // 文件后缀名到MIME类型的映射
     static const std::unordered_map<int, std::string> CODE_TO_STATUS; // 状态码到状态描述的映射
-    static const std::unordered_map<int, std::string> CODE_TO_PATH; // 错误状态码到错误页面路径的映射
+    static const std::unordered_map<int, std::string> ERRORCODE_TO_PATH; // 错误状态码到错误页面路径的映射
 };
 
 

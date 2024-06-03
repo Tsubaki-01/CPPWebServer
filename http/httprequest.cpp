@@ -72,7 +72,7 @@ void HttpRequest::parseBody(const std::string& line)
 void HttpRequest::parsePath()
 {
     if (path_ == "/")
-        path_ = "/index.heml";
+        path_ = "/index.html";
     else {
         if (DEFAULT_HTML.count(path_) > 0)
             path_ += ".html";
@@ -91,7 +91,7 @@ void HttpRequest::parsePost()
             if (tag == 0 || tag == 1)
             {
                 bool isLogin = (tag == 1);
-                if (UserVerify(post_["username"], post_["password"], isLogin))
+                if (userVerify(post_["username"], post_["password"], isLogin))
                 {
                     path_ = "/welcome.html";
                 }
@@ -234,8 +234,8 @@ bool HttpRequest::parser(Buffer& buffer)
         return false;
     while (buffer.readableBytes() && state_ != FINISH)
     {
-        const char* END_OF_LINE = std::search(buffer.curPtr(), buffer.writePtr(), CRLF, CRLF + 2);
-        std::string lineContent = std::string(buffer.curPtr(), END_OF_LINE);
+        const char* END_OF_LINE = std::search(buffer.readPtr(), buffer.writePtr(), CRLF, CRLF + 2);
+        std::string lineContent = std::string(buffer.readPtr(), END_OF_LINE);
 
         switch (state_)
         {

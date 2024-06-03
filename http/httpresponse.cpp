@@ -29,7 +29,7 @@ const std::unordered_map<int, std::string> HttpResponse::CODE_TO_STATUS = {
     { 404, "Not Found" },
 };
 
-const std::unordered_map<int, std::string> HttpResponse::CODE_TO_PATH = {
+const std::unordered_map<int, std::string> HttpResponse::ERRORCODE_TO_PATH = {
     { 400, "/400.html" },
     { 403, "/403.html" },
     { 404, "/404.html" },
@@ -170,9 +170,9 @@ void HttpResponse::addContentToBuffer_(Buffer& buffer)
 
 void HttpResponse::errorHtml_()
 {
-    if (CODE_TO_PATH.count(code_) > 0)
+    if (ERRORCODE_TO_PATH.count(code_) > 0)
     {
-        path_ = CODE_TO_PATH.find(code_)->second;
+        path_ = ERRORCODE_TO_PATH.find(code_)->second;
         stat((srcDir_ + path_).c_str(), &mmFileStat_);
     }
 }; // 生成错误页面的HTML内容
