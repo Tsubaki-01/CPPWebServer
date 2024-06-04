@@ -59,7 +59,7 @@ void HttpResponse::init(const std::string& srcDir, std::string& path, bool isKee
 };
 void HttpResponse::handleResponse(Buffer& buffer)
 {
-    if (stat((srcDir_ + path_).data(), &mmFileStat_) < 0
+    if (stat((srcDir_ + path_).c_str(), &mmFileStat_) < 0
         || S_ISDIR(mmFileStat_.st_mode)) // 检查文件是否存在及是否是一个文件而非目录
         code_ = 404;
     else if (mmFileStat_.st_mode & S_IROTH == 0) // 检查文件权限是否允许其他用户读取
@@ -134,7 +134,7 @@ void HttpResponse::addHeaderToBuffer_(Buffer& buffer)
 };
 void HttpResponse::addContentToBuffer_(Buffer& buffer)
 {
-    int srcFd = open((srcDir_ + path_).data(), O_RDONLY);
+    int srcFd = open((srcDir_ + path_).c_str(), O_RDONLY);
     if (srcFd < 0)
     {
         handleErrorContent(buffer, "File Not Found1");
@@ -152,7 +152,7 @@ void HttpResponse::addContentToBuffer_(Buffer& buffer)
         return;
     }
 
-    buffer.append(mmFile_, mmFileStat_.st_size);
+    // buffer.append(mmFile_, mmFileStat_.st_size); // 文件内容一般太多了，不写入缓冲区，后续直接从内存写入socket
 
     /*
     std::ifstream inputFile(srcDir_ + path_);

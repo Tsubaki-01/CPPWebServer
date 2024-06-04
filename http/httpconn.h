@@ -25,7 +25,7 @@ public:
     ssize_t read(int* errNo);
     ssize_t write(int* errNo);
 
-    void close();
+    void closeHttpConn();
 
     int getFd() const;
     int getPort() const;
@@ -57,7 +57,7 @@ private:
     struct iovec iov_[2];
 
     Buffer readBuffer_;
-    Buffer writeBuffer_;
+    Buffer writeBuffer_; // 写缓冲区用来存响应中除了body之外的较短内容
 
     HttpRequest request_;
     HttpResponse response_;
