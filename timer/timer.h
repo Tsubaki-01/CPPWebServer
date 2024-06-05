@@ -15,46 +15,49 @@
 typedef std::function<void()> timeOutCallBack;
 typedef std::chrono::high_resolution_clock timeClock;
 typedef std::chrono::time_point<timeClock> timeStamp;
+typedef std::chrono::milliseconds MS;
 
 struct timerNode
 {
     int id;
-    timeStamp expireSeconds; // 过期时间
+    timeStamp expireTime; // 过期时间
     timeOutCallBack callBack; // 响应函数
 
     bool operator<(timerNode& t)
     {
-        return expireSeconds < t.expireSeconds;
+        return expireTime < t.expireTime;
     }
     bool operator>(timerNode& t)
     {
-        return expireSeconds > t.expireSeconds;
+        return expireTime > t.expireTime;
     }
 };
 
 class timer
 {
 public:
-    timer() { heap_.resize(64); }
+    timer() { heap_.reserve(64); } // 不能用resize
     ~timer() { clear(); }
 
     void add(int id, int timeOut, const timeOutCallBack& callBack);
     void pop();
 
-    void addjust(int id, int newExpireTime);
+    void adjust(int id, int newExpireTime);
+    void adjust(int index);
 
-    void tick();
-    int getNextTick();
+    void tick(); // 处理所有已经到期的计时器节点
+    int getNextTick(); // 获取下一个计时器到期的时间间隔
 
-    void work(int id);
+    void work(int id); // 处理并移除指定ID的计时器节点，执行其回调函数
 
     void clear();
 
 private:
-    void siftUp_(size_t index);
-    bool siftDown_(size_t index, size_t n);
-
     void swapNode_(size_t i, size_t j);
+
+    void siftUp_(size_t index);
+    bool siftDown_(size_t index, size_t n); // 左闭右开
+
     void del_(size_t index);
 
 
