@@ -27,10 +27,10 @@ public:
     void push_back(const T& item);
     void push_front(const T& item);
 
-    void pop(T& item); // 队列头pop到item里
-    void pop(T& item, int timeout); // 队列头pop到item里，超时则退出
+    bool pop(T& item); // 队列头pop到item里
+    bool pop(T& item, int timeout); // 队列头pop到item里，超时则退出
 
-    void flush();
+    void flush(); // 强制唤醒一个消费者进程(以防有可能一直push，pop进程抢不到互斥锁)
 
     void clear();
 

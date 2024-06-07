@@ -27,6 +27,7 @@ public:
 
     const char* readPtr() const; // 获取当前读指针位置
     const char* writePtr() const;
+    char* writePtr();
     void ensureWriteable(size_t len); // 确保有足够的可读区域
     void hasWritten(size_t len); // 更新writeIndex_
 

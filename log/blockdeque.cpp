@@ -76,7 +76,7 @@ void BlockDeque<T>::push_front(const T& item)
 };
 
 template<class T>
-void BlockDeque<T>::pop(T& item)
+bool BlockDeque<T>::pop(T& item)
 {
     std::lock_guard<std::mutex> lock(mtx_);
     while (deq_.empty())
@@ -92,7 +92,7 @@ void BlockDeque<T>::pop(T& item)
     return true;
 };
 template<class T>
-void BlockDeque<T>::pop(T& item, int timeout)
+bool BlockDeque<T>::pop(T& item, int timeout)
 {
     std::lock_guard<std::mutex> lock(mtx_);
     while (deq_.empty())
@@ -115,7 +115,11 @@ void BlockDeque<T>::pop(T& item, int timeout)
 template<class T>
 void BlockDeque<T>::flush()
 {
-    condConsumer_.notify_one();
+    std::lock_guard<std::mutex> lock(mtx_);
+    if (!deq_.empty())
+    {
+        condConsumer_.notify_one();
+    }
 };
 
 template<class T>

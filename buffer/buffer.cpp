@@ -32,6 +32,11 @@ const char* Buffer::writePtr() const
     return beginPtr_() + writeIndex_;
 };
 
+char* Buffer::writePtr()
+{
+    return beginPtr_() + writeIndex_;
+};
+
 void Buffer::ensureWriteable(size_t len)
 {
     if (writeableBytes() < len)
