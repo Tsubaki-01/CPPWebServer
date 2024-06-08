@@ -183,7 +183,7 @@ void Log::write(int level, const char* format, ...)
         buffer_.retrieveAll();
     }
 
-}; // 写入日志
+}; // 写入阻塞队列
 void Log::flush()
 {
     if (fp_)
@@ -192,7 +192,7 @@ void Log::flush()
             deque_->flush();
         fflush(fp_);
     }
-}; // 刷新日志到文件
+}; // 强制刷新日志到文件一次。从阻塞队列取数据写入日志
 
 
 int Log::getLevel()

@@ -45,3 +45,18 @@ int main() {
 `vsnprintf(buffer, size, format, args);` 将格式化的字符串输出到 `buffer` 中。
 
 `va_end(args);` 结束对可变参数的处理。
+
+#### **可变参数宏__VA_ARGS__**
+
+__VA_ARGS__是一个可变参数的宏，定义时宏定义中参数列表的最后一个参数为省略号，在实际使用时会发现有时会加##，有时又不加。
+
+```c++
+1//最简单的定义
+2#define my_print1(...)  printf(__VA_ARGS__)
+3
+4//搭配va_list的format使用
+5#define my_print2(format, ...) printf(format, __VA_ARGS__)  
+6#define my_print3(format, ...) printf(format, ##__VA_ARGS__)
+```
+
+__VA_ARGS__宏前面加上##的作用在于，当可变参数的个数为0时，这里printf参数列表中的的##会把前面多余的","去掉，否则会编译出错，建议使用后面这种，使得程序更加健壮。

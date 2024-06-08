@@ -60,20 +60,35 @@ public:
     static Log& instance(); // 获取单例
     static void flushLogThread(); // 异步刷新日志线程
 
-    void write(int level, const char* format, ...); // 写入日志
-    void flush(); // 强制刷新日志到文件一次
+    void write(int level, const char* format, ...); // 写入阻塞队列
+    void flush(); // 强制刷新日志到文件一次。从阻塞队列取数据写入日志
 
     int getLevel();
     void setLevel(int level);
     bool isOpen() { return isOpen_; };
 };
 
+enum {
+    DEBUG,
+    INFO,
+    WARN,
+    ERROR
+};
 
 
+#define LOG_BASE(level, format, ...) \
+    do {\
+        Log& log = Log::instance();\
+        if (log.isOpen() && log.getLevel() <= level) {\
+            log.write(level, format, ##__VA_ARGS__); \
+            log.flush();\
+        }\
+    } while (0);
 
-
-
-
+#define LOG_DEBUG(format, ...) do {LOG_BASE(0, format, ##__VA_ARGS__)} while(0);
+#define LOG_INFO(format, ...) do {LOG_BASE(1, format, ##__VA_ARGS__)} while(0);
+#define LOG_WARN(format, ...) do {LOG_BASE(2, format, ##__VA_ARGS__)} while(0);
+#define LOG_ERROR(format, ...) do {LOG_BASE(3, format, ##__VA_ARGS__)} while(0);
 
 
 
