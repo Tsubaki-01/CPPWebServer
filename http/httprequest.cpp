@@ -234,7 +234,7 @@ bool HttpRequest::parser(Buffer& buffer)
         return false;
     while (buffer.readableBytes() && state_ != FINISH)
     {
-        const char* END_OF_LINE = std::search(buffer.readPtr(), buffer.writePtr(), CRLF, CRLF + 2);
+        const char* END_OF_LINE = std::search(buffer.readPtr(), buffer.writePtrConst(), CRLF, CRLF + 2);
         std::string lineContent = std::string(buffer.readPtr(), END_OF_LINE);
 
         switch (state_)

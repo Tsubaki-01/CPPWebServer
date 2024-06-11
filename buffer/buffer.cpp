@@ -27,7 +27,7 @@ const char* Buffer::readPtr() const
     return beginPtr_() + readIndex_;
 }; // 获取当前读指针位置
 
-const char* Buffer::writePtr() const
+const char* Buffer::writePtrConst() const
 {
     return beginPtr_() + writeIndex_;
 };
