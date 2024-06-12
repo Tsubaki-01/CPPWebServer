@@ -52,7 +52,7 @@ template<class T>
 BlockDeque<T>::BlockDeque(size_t Capacity)
     :capacity_(Capacity), isClose_(false)
 {
-    assert(capacity > 0);
+    assert(Capacity > 0);
 };
 
 template<class T>
