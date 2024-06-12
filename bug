@@ -1,0 +1,32 @@
+g++ -std=c++14 -O2 -Wall -g  ../src/log/*.cpp ../src/pool/DBConnPool/*.cpp ../src/pool/ThreadPool/*.cpp ../src/timer/*.cpp ../src/http/*.cpp ../src/server/*.cpp ../src/buffer/*.cpp ../src/main.cpp  -o ../bin/server  -pthread -lmysqlclient
+/usr/bin/ld: /tmp/cc8XlpVk.o: in function `Log::~Log()':
+/home/wq/webserver/CPPWebServer-master/build/../src/log/log.cpp:214: undefined reference to `BlockDeque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >::empty()'
+/usr/bin/ld: /home/wq/webserver/CPPWebServer-master/build/../src/log/log.cpp:214: undefined reference to `BlockDeque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >::empty()'
+/usr/bin/ld: /tmp/cc8XlpVk.o: in function `std::default_delete<BlockDeque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::operator()(BlockDeque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >*) const':
+/usr/include/c++/11/bits/unique_ptr.h:85: undefined reference to `BlockDeque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >::~BlockDeque()'
+/usr/bin/ld: /tmp/cc8XlpVk.o: in function `Log::flush()':
+/home/wq/webserver/CPPWebServer-master/build/../src/log/log.cpp:192: undefined reference to `BlockDeque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >::flush()'
+/usr/bin/ld: /home/wq/webserver/CPPWebServer-master/build/../src/log/log.cpp:192: undefined reference to `BlockDeque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >::flush()'
+/usr/bin/ld: /tmp/cc8XlpVk.o: in function `std::_MakeUniq<BlockDeque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::__single_object std::make_unique<BlockDeque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >>()':
+/usr/include/c++/11/bits/unique_ptr.h:962: undefined reference to `BlockDeque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >::BlockDeque(unsigned long)'
+/usr/bin/ld: /tmp/cc8XlpVk.o: in function `std::default_delete<BlockDeque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::operator()(BlockDeque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >*) const':
+/usr/include/c++/11/bits/unique_ptr.h:85: undefined reference to `BlockDeque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >::~BlockDeque()'
+/usr/bin/ld: /tmp/cc8XlpVk.o: in function `Log::asyncWrite_()':
+/home/wq/webserver/CPPWebServer-master/build/../src/log/log.cpp:96: undefined reference to `BlockDeque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >::pop(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&)'
+/usr/bin/ld: /tmp/cc8XlpVk.o: in function `Log::write(int, char const*, ...)':
+/home/wq/webserver/CPPWebServer-master/build/../src/log/log.cpp:167: undefined reference to `BlockDeque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >::full()'
+/usr/bin/ld: /home/wq/webserver/CPPWebServer-master/build/../src/log/log.cpp:173: undefined reference to `BlockDeque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >::empty()'
+/usr/bin/ld: /tmp/cc8XlpVk.o: in function `Log::flush()':
+/home/wq/webserver/CPPWebServer-master/build/../src/log/log.cpp:192: undefined reference to `BlockDeque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >::flush()'
+/usr/bin/ld: /tmp/cc8XlpVk.o: in function `Log::write(int, char const*, ...)':
+/home/wq/webserver/CPPWebServer-master/build/../src/log/log.cpp:177: undefined reference to `BlockDeque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >::push_back(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)'
+/usr/bin/ld: /tmp/cc8XlpVk.o: in function `Log::flush()':
+/home/wq/webserver/CPPWebServer-master/build/../src/log/log.cpp:192: undefined reference to `BlockDeque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >::flush()'
+/usr/bin/ld: /tmp/cc8XlpVk.o: in function `Log::write(int, char const*, ...)':
+/home/wq/webserver/CPPWebServer-master/build/../src/log/log.cpp:169: undefined reference to `BlockDeque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >::push_back(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)'
+/usr/bin/ld: /tmp/cc8XlpVk.o: in function `Log::flush()':
+/home/wq/webserver/CPPWebServer-master/build/../src/log/log.cpp:192: undefined reference to `BlockDeque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >::flush()'
+/usr/bin/ld: /tmp/ccZtl9DZ.o: in function `WebServer::dealWrite_(HttpConn*)':
+/home/wq/webserver/CPPWebServer-master/build/../src/server/webserver.cpp:198: undefined reference to `void ThreadPool::addTask<std::_Bind<void (WebServer::*(WebServer*, HttpConn*))(HttpConn*)> >(std::_Bind<void (WebServer::*(WebServer*, HttpConn*))(HttpConn*)>&&)'
+/usr/bin/ld: /tmp/ccZtl9DZ.o: in function `WebServer::dealRead_(HttpConn*)':
+/home/wq/webserver/CPPWebServer-master/build/../src/server/webserver.cpp:205: undefined reference to `void ThreadPool::addTask<std::_Bind<void (WebServer::*(WebServer*, HttpConn*))(HttpConn*)> >(std::_Bind<void (WebServer::*(WebServer*, HttpConn*))(HttpConn*)>&&)'

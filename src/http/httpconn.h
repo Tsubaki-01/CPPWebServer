@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 #include <sys/uio.h>     // readv/writev
 
+#include "../log/log.h"
 #include "../pool/DBConnPool/sqlconnRAII.h"
 #include "../buffer/buffer.h"
 #include "httpresponse.h"

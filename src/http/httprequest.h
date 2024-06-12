@@ -2,6 +2,7 @@
 
 #define HTTPREQUEST_H
 
+#include "../log/log.h"
 #include "../buffer/buffer.h"
 #include "../pool/DBConnPool/sqlconnRAII.h"
 
