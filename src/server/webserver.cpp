@@ -25,10 +25,17 @@ WebServer::WebServer(int port, int trigMode, int timeoutMs, bool optLinger, // �
         Log::instance().init(logLevel, "./log", ".log", logQueSize);
         if (isClose_)
         {
-            // 写日志
+            LOG_ERROR("========== Server init error!==========");// 写日志
         }
         else {
-
+            LOG_INFO("========== Server init ==========");
+            LOG_INFO("Port:%d, OpenLinger: %s", port_, optLinger ? "true" : "false");
+            LOG_INFO("Listen Mode: %s, OpenConn Mode: %s",
+                (listenEvent_ & EPOLLET ? "ET" : "LT"),
+                (connEvent_ & EPOLLET ? "ET" : "LT"));
+            LOG_INFO("LogSys level: %d", logLevel);
+            LOG_INFO("srcDir: %s", HttpConn::srcDir);
+            LOG_INFO("SqlConnPool num: %d, ThreadPool num: %d", connPoolNum, threadNum);
             // 写日志
         }
     }
@@ -52,7 +59,7 @@ bool WebServer::initSocket_()
     struct sockaddr_in addr;
     if (port_ > 65536 || port_ < 1024)
     {
-        // 写日志
+        LOG_ERROR("Port:%d error!", port_);// 写日志
         return false;
     }
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -67,7 +74,7 @@ bool WebServer::initSocket_()
     listenFd_ = socket(AF_INET, SOCK_STREAM, 0);
     if (listenFd_ < 0)
     {
-        // 写日志
+        LOG_ERROR("Create socket error!", port_);// 写日志
         return false;
     }
 
@@ -75,7 +82,7 @@ bool WebServer::initSocket_()
     ret = setsockopt(listenFd_, SOL_SOCKET, SO_LINGER, (&optlinger), sizeof(optlinger));
     if (ret < 0)
     {
-        // 写日志
+        LOG_ERROR("Init linger error!", port_);// 写日志
         close(listenFd_);
         return false;
     }
@@ -85,7 +92,7 @@ bool WebServer::initSocket_()
     ret = setsockopt(listenFd_, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const void*>(&optval), sizeof(int));
     if (ret < 0)
     {
-        // 写日志
+        LOG_ERROR("set socket setsockopt error !");// 写日志
         close(listenFd_);
         return false;
     }
@@ -94,7 +101,7 @@ bool WebServer::initSocket_()
     ret = bind(listenFd_, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr));
     if (ret < 0)
     {
-        // 写日志
+        LOG_ERROR("Bind Port:%d error!", port_);// 写日志
         close(listenFd_);
         return false;
     }
@@ -103,7 +110,7 @@ bool WebServer::initSocket_()
     ret = listen(listenFd_, 6);
     if (ret < 0)
     {
-        // 写日志
+        LOG_ERROR("Listen port:%d error!", port_);// 写日志
         close(listenFd_);
         return false;
     }
@@ -112,14 +119,14 @@ bool WebServer::initSocket_()
     ret = epoller_->addFd(listenFd_, listenEvent_ | EPOLLIN);
     if (ret < 0)
     {
-        // 写日志
+        LOG_ERROR("Add listen error!");// 写日志
         close(listenFd_);
         return false;
     }
 
     setFdNonBlock(listenFd_);
 
-    // 写日志
+    LOG_INFO("Server port:%d", port_);// 写日志
 
     return true;
 
@@ -168,7 +175,7 @@ void WebServer::addClient_(int fd, sockaddr_in addr)
     }
     epoller_->addFd(fd, EPOLLIN | connEvent_);
     setFdNonBlock(fd);
-    // 写日志
+    LOG_INFO("Client[%d] in!", users_[fd].getFd());// 写日志
 };
 
 void WebServer::dealListen_()
@@ -183,7 +190,7 @@ void WebServer::dealListen_()
             return;
         else if (HttpConn::userCnt >= Max_FD) {
             sendError_(fd, "Server Busy");
-            // 写日志
+            LOG_WARN("Clients is full!");// 写日志
             return;
         }
 
@@ -211,7 +218,7 @@ void WebServer::sendError_(int fd, const char* info)
     int ret = send(fd, info, strlen(info), 0);
     if (ret < 0)
     {
-        // 写日志
+        LOG_WARN("send error to client[%d] error!", fd);// 写日志
     }
     close(fd);
 }; // 发送错误信息
@@ -225,7 +232,7 @@ void WebServer::extendTime_(HttpConn* client)
 void WebServer::closeConn_(HttpConn* client)
 {
     assert(client);
-    // 写日志
+    LOG_INFO("Client[%d] quit!", client->getFd());// 写日志
     epoller_->delFd(client->getFd());
     client->closeHttpConn();
 }; // 关闭连接
@@ -283,7 +290,7 @@ void WebServer::start()
     int timeMs = -1;
     if (!isClose_)
     {
-        // 写日志
+        LOG_INFO("========== Server start ==========");// 写日志
     }
 
     while (!isClose_)

@@ -25,7 +25,7 @@ MYSQL* SqlConnPool::getConn()
     // 暂无可用连接
     if (sqlConnQue_.empty())
     {
-        // 写日志
+        LOG_WARN("SqlConnPool busy!");// 写日志
         return nullptr;
     }
     MYSQL* sql = nullptr;
@@ -76,7 +76,7 @@ void SqlConnPool::init(const char* host, int port,
         MYSQL* sql = mysql_init(nullptr);
         if (!sql)
         {
-            // 写日志
+            LOG_ERROR("MySql init error!");// 写日志
             exit(1);
         }
 
@@ -84,7 +84,7 @@ void SqlConnPool::init(const char* host, int port,
             user, pwd, dbName, port, nullptr, 0);
         if (!sql)
         {
-            // 写日志
+            LOG_ERROR("MySql Connect error!");// 写日志
             exit(1);
         }
 

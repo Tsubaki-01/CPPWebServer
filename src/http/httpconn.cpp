@@ -19,7 +19,7 @@ void HttpConn::init(int sockFd, const sockaddr_in& addr)
     readBuffer_.retrieveAll();
     writeBuffer_.retrieveAll();
     isClose_ = false;
-    // 写日志
+    LOG_INFO("Client[%d](%s:%d) in, userCount:%d", fd_, getIP(), getPort(), (int)userCnt);// 写日志
 };
 void HttpConn::closeHttpConn()
 {
@@ -28,7 +28,7 @@ void HttpConn::closeHttpConn()
         isClose_ = true;
         userCnt--;
         close(fd_);
-        // 写日志
+        LOG_INFO("Client[%d](%s:%d) quit, UserCount:%d", fd_, getIP(), getPort(), (int)userCnt);// 写日志
     }
 };
 
@@ -110,7 +110,7 @@ bool HttpConn::process()
         return false;
     else if (request_.parser(readBuffer_)) // 解析http请求成功
     {
-        // 写日志
+        LOG_DEBUG("%s", request_.path().c_str());// 写日志
         response_.init(srcDir, request_.path(), request_.isKeepAlive());
     }
     else response_.init(srcDir, request_.path(), false, 400); // http请求格式有误
@@ -127,7 +127,7 @@ bool HttpConn::process()
         iov_[1].iov_len = response_.fileLength();
         iovCnt_ = 2;
     }
-    //写日志
+    LOG_DEBUG("filesize:%d, %d  to %d", response_.fileLength(), iovCnt_, bytesToWrite());//写日志
 
     return true;
 };

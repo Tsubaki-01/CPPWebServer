@@ -9,6 +9,7 @@
 #include <queue>
 #include <cassert>
 
+#include "../../log/log.h"
 #include "../../lock/locker.h"
 
 

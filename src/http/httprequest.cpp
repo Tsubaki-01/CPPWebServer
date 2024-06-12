@@ -66,7 +66,7 @@ void HttpRequest::parseBody(const std::string& line)
     body_ = line;
     parsePost();
     state_ = FINISH;
-    // 写日志
+    LOG_DEBUG("Body:%s, len:%d", line.c_str(), line.size());// 写日志
 };
 // 解析请求路径
 void HttpRequest::parsePath()
@@ -87,7 +87,7 @@ void HttpRequest::parsePost()
         if (DEFAULT_HTML_TAG.count(path_))
         {
             int tag = DEFAULT_HTML_TAG.find(path_)->second;
-            // 写日志
+            LOG_DEBUG("Tag:%d", tag);// 写日志
             if (tag == 0 || tag == 1)
             {
                 bool isLogin = (tag == 1);
@@ -136,7 +136,7 @@ void HttpRequest::parseFromUrlencoded()
             value = body_.substr(left, right - left);
             post_[key] = value;
             left = right + 1;
-            // 写日志
+            LOG_DEBUG("%s = %s", key.c_str(), value.c_str());// 写日志
             break;
         default:
             break;
@@ -155,7 +155,7 @@ void HttpRequest::parseFromUrlencoded()
 bool HttpRequest::userVerify(const std::string& name, const std::string& pwd, bool isLogin)
 {
     if (name.empty() || pwd.empty()) return false;
-    // 写日志
+    LOG_INFO("Verify name:%s pwd:%s", name.c_str(), pwd.c_str());// 写日志
 
     MYSQL* sql;
     sqlConnRAII tempRAII(&sql, SqlConnPool::instance());
@@ -169,7 +169,7 @@ bool HttpRequest::userVerify(const std::string& name, const std::string& pwd, bo
 
 
     snprintf(order, 256, "SELECT username, password FROM user WHERE username='%s' LIMIT 1", name.c_str());
-    // 写日志
+    LOG_DEBUG("%s", order);// 写日志
 
     if (!mysql_query(sql, order)) // 查询失败
     {
@@ -183,7 +183,7 @@ bool HttpRequest::userVerify(const std::string& name, const std::string& pwd, bo
 
     while (MYSQL_ROW row = mysql_fetch_row(res))
     {
-        // 写日志
+        LOG_DEBUG("MYSQL ROW: %s %s", row[0], row[1]);// 写日志
         std::string password(row[1]);
 
         if (isLogin)
@@ -191,29 +191,29 @@ bool HttpRequest::userVerify(const std::string& name, const std::string& pwd, bo
                 flag = true;
             else {
                 flag = false; // 密码错误
-                // 写日志
+                LOG_DEBUG("pwd error!");// 写日志
             }
         else {
             flag = false; // 注册时用户名重复
-            // 写日志
+            LOG_DEBUG("user used!");// 写日志
         }
     }
     mysql_free_result(res);
 
     if (!isLogin)
     {
-        // 写日志
+        LOG_DEBUG("regirster!");// 写日志
         memset(order, 0, 256);
         snprintf(order, 256, "INSERT INTO user(username, password) VALUES('%s','%s')", name.c_str(), pwd.c_str());
-        // 写日志
+        LOG_DEBUG("%s", order);// 写日志
         if (!mysql_query(sql, order)) // 插入失败
         {
-            // 写日志
+            LOG_DEBUG("Insert error!");// 写日志
             flag = false;
         }
     }
 
-    // 写日志
+    LOG_DEBUG("UserVerify success!!");// 写日志
     return flag;
 
 };
@@ -259,7 +259,7 @@ bool HttpRequest::parser(Buffer& buffer)
             break;
         buffer.retrieveUntil(END_OF_LINE + 2);
     }
-    // 写日志
+    LOG_DEBUG("[%s], [%s], [%s]", method_.c_str(), path_.c_str(), version_.c_str());// 写日志
 
     return true;
 };
