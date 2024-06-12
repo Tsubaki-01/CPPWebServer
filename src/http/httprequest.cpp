@@ -126,7 +126,7 @@ void HttpRequest::parseFromUrlencoded()
             body_[right] = ' ';
             break;
         case '%':
-            int num = std::stoi(body_.substr(right + 1, 2), nullptr, 16);
+            num = std::stoi(body_.substr(right + 1, 2), nullptr, 16);
             body_[right] = num;
             body_.erase(body_.begin() + right + 1);
             body_.erase(body_.begin() + right + 1);
@@ -158,7 +158,7 @@ bool HttpRequest::userVerify(const std::string& name, const std::string& pwd, bo
     // 写日志
 
     MYSQL* sql;
-    sqlConnRAII tempRAII(sql, SqlConnPool::instance());
+    sqlConnRAII tempRAII(&sql, SqlConnPool::instance());
     assert(sql);
 
     bool flag = false;

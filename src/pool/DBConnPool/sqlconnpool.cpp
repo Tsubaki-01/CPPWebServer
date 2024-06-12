@@ -71,7 +71,7 @@ void SqlConnPool::init(const char* host, int port,
 {
     assert(connSize > 0);
 
-    for (size_t i = 0;i < connSize;i++)
+    for (int i = 0;i < connSize;i++)
     {
         MYSQL* sql = mysql_init(nullptr);
         if (!sql)

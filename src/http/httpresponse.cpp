@@ -37,7 +37,7 @@ const std::unordered_map<int, std::string> HttpResponse::ERRORCODE_TO_PATH = {
 
 
 HttpResponse::HttpResponse()
-    : code_(-1), isKeepAlive_(false), mmFile_(nullptr), srcDir_(""), path_("")
+    : code_(-1), isKeepAlive_(false), srcDir_(""), path_(""), mmFile_(nullptr)
 {
     memset(&mmFileStat_, 0, sizeof(mmFileStat_));
 };
@@ -46,7 +46,7 @@ HttpResponse::~HttpResponse()
     unmapFile();
 };
 
-void HttpResponse::init(const std::string& srcDir, std::string& path, bool isKeepAlive = false, int code = -1)
+void HttpResponse::init(const std::string& srcDir, std::string& path, bool isKeepAlive, int code)
 {
     assert(!srcDir.empty());
     if (mmFile_) unmapFile();
@@ -62,7 +62,7 @@ void HttpResponse::handleResponse(Buffer& buffer)
     if (stat((srcDir_ + path_).c_str(), &mmFileStat_) < 0
         || S_ISDIR(mmFileStat_.st_mode)) // 检查文件是否存在及是否是一个文件而非目录
         code_ = 404;
-    else if (mmFileStat_.st_mode & S_IROTH == 0) // 检查文件权限是否允许其他用户读取
+    else if ((mmFileStat_.st_mode & S_IROTH) == 0) // 检查文件权限是否允许其他用户读取
         code_ = 403;
     else if (code_ == -1) // 之前没有设置过code_
         code_ = 200;

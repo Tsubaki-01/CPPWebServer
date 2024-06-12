@@ -30,16 +30,4 @@ public:
     int wait(int timeoutMs = -1); // 等待事件的发生。timeoutMs 指定超时时间，默认是无限等待。返回值是发生事件的数量
 };
 
-Epoller::Epoller(int maxEvent) :epollFd_(epoll_create1(0)), events_(maxEvent)
-{
-    assert(epollFd_ >= 0 && "epoll_create1 failed");
-    assert(events_.size() > 0 && "events creation failed");
-}
-
-Epoller::~Epoller()
-{
-    if (epollFd_ >= 0)
-        close(epollFd_);
-}
-
 #endif  // ~EPOLL_H

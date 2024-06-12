@@ -4,7 +4,7 @@ WebServer::WebServer(int port, int trigMode, int timeoutMs, bool optLinger, // �
     int sqlPort, const char* sqlUser, const char* sqlPwd, const char* dbName, // 数据库连接
     int connPoolNum, int threadNum, // 池化容量
     bool openLog, int logLevel, int logQueSize)  // 日志
-    :port_(port), openLinger_(optLinger), timeoutMs_(timeoutMs), isClose_(false)
+    :port_(port), timeoutMs_(timeoutMs), openLinger_(optLinger), isClose_(false)
 {
     timer_ = std::make_unique<timer>();
     threadPool_ = std::make_unique<ThreadPool>(threadNum);
@@ -164,7 +164,7 @@ void WebServer::addClient_(int fd, sockaddr_in addr)
     users_[fd].init(fd, addr);
     if (timeoutMs_ > 0)
     {
-        timer_->add(fd, timeoutMs_, std::bind(WebServer::closeConn_, this, &users_[fd]));
+        timer_->add(fd, timeoutMs_, std::bind(&WebServer::closeConn_, this, &users_[fd]));
     }
     epoller_->addFd(fd, EPOLLIN | connEvent_);
     setFdNonBlock(fd);
@@ -178,7 +178,7 @@ void WebServer::dealListen_()
 
     do
     {
-        int fd = accept(listenFd_, reinterpret_cast<struct sockaddr*>(&addr), len);
+        int fd = accept(listenFd_, reinterpret_cast<struct sockaddr*>(&addr), &len);
         if (fd <= 0)
             return;
         else if (HttpConn::userCnt >= Max_FD) {

@@ -1,5 +1,9 @@
 #include "httpconn.h"
 
+const char* HttpConn::srcDir;
+std::atomic<int> HttpConn::userCnt;
+bool HttpConn::isET;
+
 HttpConn::HttpConn() :fd_(-1), addr_({ 0 }), isClose_(true), iovCnt_(-1) {};
 HttpConn::~HttpConn()
 {
@@ -54,21 +58,22 @@ ssize_t HttpConn::write(int* errNo)
 
         if (static_cast<size_t>(len) > iov_[0].iov_len) // iov_[1]中还有数据没写完，需要更新iov中的变量 // 类型转换防止iov_len过大被解析为ssize_t的负数
         {
-            iov_[1].iov_base = static_cast<byte*> (iov_[1].iov_base) + (len - iov_[0].iov_len); // iov_base是void*类型的指针，需要转换为字节
+            iov_[1].iov_base = static_cast<uint8_t*> (iov_[1].iov_base) + (len - iov_[0].iov_len); // iov_base是void*类型的指针，需要转换为字节
             iov_[1].iov_len = iov_[0].iov_len + iov_[1].iov_len - len;
 
             if (iov_[0].iov_len) // 更新iov_[0]的内容
             {
                 iov_[0].iov_len = 0;
                 writeBuffer_.retrieveAll();
-                iov_[0].iov_base = writeBuffer_.readPtr();
+                iov_[0].iov_base = const_cast<void*>(reinterpret_cast<const void*>(writeBuffer_.readPtr()));
             }
         }
         else // 只用到了iov_[0]
         {
+            // iov_[0].iov_base = (uint8_t*)iov_[0].iov_base + len;
             iov_[0].iov_len -= len;
             writeBuffer_.retrieve(len);
-            iov_[0].iov_base = writeBuffer_.readPtr();
+            iov_[0].iov_base = const_cast<void*>(reinterpret_cast<const void*>(writeBuffer_.readPtr()));
         }
 
         if (iov_[0].iov_len + iov_[1].iov_len == 0) break; // 写结束
@@ -112,7 +117,7 @@ bool HttpConn::process()
 
     response_.handleResponse(writeBuffer_);
 
-    iov_[0].iov_base = writeBuffer_.readPtr();
+    iov_[0].iov_base = const_cast<void*>(reinterpret_cast<const void*>(writeBuffer_.readPtr()));
     iov_[0].iov_len = writeBuffer_.readableBytes();
     iovCnt_ = 1;
 

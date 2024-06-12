@@ -8,12 +8,12 @@ class sqlConnRAII
 {
 public:
     // 从connPool里面取连接到sql
-    sqlConnRAII(MYSQL*& sql, SqlConnPool& connPool)
+    sqlConnRAII(MYSQL** sql, SqlConnPool& connPool)
     {
         if (sql == nullptr)
             exit(1);
-        sql = connPool.getConn();
-        sql_ = &sql;
+        *sql = connPool.getConn();
+        sql_ = sql;
         connPool_ = &connPool;
     }
     ~sqlConnRAII()

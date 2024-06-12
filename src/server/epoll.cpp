@@ -1,5 +1,19 @@
 #include "epoll.h"
 
+
+Epoller::Epoller(int maxEvent) :epollFd_(epoll_create1(0)), events_(maxEvent)
+{
+    assert(epollFd_ >= 0 && "epoll_create1 failed");
+    assert(events_.size() > 0 && "events creation failed");
+}
+
+Epoller::~Epoller()
+{
+    if (epollFd_ >= 0)
+        close(epollFd_);
+}
+
+
 bool Epoller::addFd(int fd, uint32_t events)
 {
     if (fd < 0)
@@ -47,7 +61,7 @@ uint32_t Epoller::getEvents(size_t i) const
 }; // 返回第 i 个事件对应的事件类型
 
 
-int Epoller::wait(int timeoutMs = -1)
+int Epoller::wait(int timeoutMs)
 {
     return epoll_wait(epollFd_, events_.data(), static_cast<int>(events_.size()), timeoutMs);
 }; // 等待事件的发生。timeoutMs 指定超时时间，默认是无限等待。返回值是发生事件的数量

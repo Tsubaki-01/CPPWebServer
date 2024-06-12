@@ -1,7 +1,7 @@
 #include "log.h"
 
-Log::Log() :isOpen_(true), lineCount_(0), fp_(nullptr), isAsync_(false),
-deque_(nullptr), today_(0), writeThread_(nullptr)
+Log::Log() :lineCount_(0), today_(0), isOpen_(true), isAsync_(false), fp_(nullptr),
+deque_(nullptr), writeThread_(nullptr)
 { };
 
 
@@ -13,9 +13,9 @@ Log& Log::instance()
 
 
 void Log::init(int level,
-    const char* path = "./log",
-    const char* suffix = ".log",
-    int maxQueueCapacity = 1024)
+    const char* path,
+    const char* suffix,
+    int maxQueueCapacity)
 {
     isOpen_ = true;
     level_ = level;

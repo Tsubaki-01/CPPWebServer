@@ -1,7 +1,7 @@
 #include "blockdeque.h"
 
 template<class T>
-BlockDeque<T>::BlockDeque(size_t Capacity = 1000)
+BlockDeque<T>::BlockDeque(size_t Capacity)
     :capacity_(Capacity), isClose_(false)
 {
     assert(capacity > 0);
@@ -55,7 +55,7 @@ T BlockDeque<T>::back()
 template<class T>
 void BlockDeque<T>::push_back(const T& item)
 {
-    std::lock_guard<std::mutex> lock(mtx_);
+    std::unique_lock<std::mutex> lock(mtx_);
     while (deq_.size() >= capacity_) // while 保证线程安全
         condProducer_.wait(lock);
     if (isClose_)
@@ -66,7 +66,7 @@ void BlockDeque<T>::push_back(const T& item)
 template<class T>
 void BlockDeque<T>::push_front(const T& item)
 {
-    std::lock_guard<std::mutex> lock(mtx_);
+    std::unique_lock<std::mutex> lock(mtx_);
     while (deq_.size() >= capacity_) // while 保证线程安全
         condProducer_.wait(lock);
     if (isClose_)
@@ -78,7 +78,7 @@ void BlockDeque<T>::push_front(const T& item)
 template<class T>
 bool BlockDeque<T>::pop(T& item)
 {
-    std::lock_guard<std::mutex> lock(mtx_);
+    std::unique_lock<std::mutex> lock(mtx_);
     while (deq_.empty())
     {
         condConsumer_.wait(lock);
@@ -94,7 +94,7 @@ bool BlockDeque<T>::pop(T& item)
 template<class T>
 bool BlockDeque<T>::pop(T& item, int timeout)
 {
-    std::lock_guard<std::mutex> lock(mtx_);
+    std::unique_lock<std::mutex> lock(mtx_);
     while (deq_.empty())
     {
         if (condConsumer_.wait_for(lock, std::chrono::seconds(timeout))
