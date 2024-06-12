@@ -3,6 +3,7 @@
 #define WEBSERVER_H
 
 #include <fcntl.h>
+#include <functional>
 #include <unistd.h>
 #include <unordered_map>
 #include <cassert>
@@ -19,7 +20,7 @@
 #include "../pool/ThreadPool/threadpool.h"
 #include "../http/httpconn.h"
 
-class Webserver
+class WebServer
 {
 private:
     static const int Max_FD = 65536;
@@ -46,29 +47,29 @@ private:
     std::unique_ptr<Epoller> epoller_; // Epoll实例，用于事件通知
 
 public:
-    Webserver(int port, int trigMode, int timeoutMs, bool optLinger, // 服务器设置
+    WebServer(int port, int trigMode, int timeoutMs, bool optLinger, // 服务器设置
         int sqlPort, const char* sqlUser, const char* sqlPwd, const char* dbName, // 数据库连接
         int connPoolNum, int threadNum, // 池化容量
         bool openLog, int logLevel, int logQueSize); // 日志
 
-    ~Webserver();
+    ~WebServer();
 
     void start();
 
 private:
     static int setFdNonBlock(int fd); // 设置文件描述符为非阻塞模式
 
-    bool initSocket_();
+    bool initSocket_(); // 初始化socket
     void initEventMode_(int trigMode);
 
     void addClient_(int fd, sockaddr_in addr);
     void dealListen_(); // 处理监听事件
-    void dealWrite_(); // 处理写事件
-    void dealRead_(); // 处理读事件
+    void dealWrite_(HttpConn* client); // 处理写事件
+    void dealRead_(HttpConn* client); // 处理读事件
 
     void sendError_(int fd, const char* info); // 发送错误信息
 
-    void extentTime_(HttpConn*); // 延长连接的超时时间
+    void extendTime_(HttpConn*); // 延长连接的超时时间
     void closeConn_(HttpConn* client); // 关闭连接
 
     void onRead(HttpConn* client); // 处理读操作

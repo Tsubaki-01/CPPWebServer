@@ -38,8 +38,12 @@ typedef union epoll_data {
   EPOLLPRI：表示对应的文件描述符有紧急的数可读；
 
   EPOLLERR：表示对应的文件描述符发生错误；
-  EPOLLHUP：表示对应的文件描述符被挂断；
+  EPOLLHUP：表示套接字被挂起，当套接字被挂起时（例如对端关闭连接），这个事件将被触发。
+  EPOLLRDHUP：read hang up监测套接字的对端关闭连接
+  EPOLLONESHOT：表示一次性触发模式，当使用一次性触发模式时，epoll 在触发事件后会自动将套接字从监听集合中删除，需要重新添加监听才能继续监视。
   EPOLLET：  ET的epoll工作模式；
+
+
 
 ### `epoll_ctl`函数
 

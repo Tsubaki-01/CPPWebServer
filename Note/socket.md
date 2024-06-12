@@ -130,3 +130,83 @@ const char *inet_ntop(int af, const void *src, char *dst, socklen_t size);
 
 - 成功时返回 `dst`，即文本形式的 IP 地址。
 - 出现错误时返回 `NULL`，并设置 `errno`。
+
+### socket函数
+
+```c++
+int socket(int domain, int type, int protocol);
+
+domain：指定套接字使用的协议族，常见的有AF_INET（IPv4）和AF_INET6（IPv6）等。
+type：指定套接字的类型，常见的有SOCK_STREAM（面向连接的流套接字）和SOCK_DGRAM（无连接的数据报套接字）等。
+protocol：指定协议类型，通常为0，表示根据domain和type选择默认协议。
+    
+返回一个新创建的套接字的文件描述符，如果出错则返回-1
+```
+
+### `setsockopt`函数
+
+```c++
+int setsockopt(int sockfd, int level, int option_name, const void *option_value, socklen_t option_len);
+
+sockfd：要设置选项的套接字文件描述符。
+level：选项所属的协议层，常见的有SOL_SOCKET表示通用套接字选项，还有其他协议层的选项。
+option_name：选项的名称，可以是各种选项常量，用于指定要设置的具体选项。
+    - SO_REUSEADDR：允许地址重用，即允许多个套接字绑定到同一个地址。
+	- SO_KEEPALIVE：启用或禁用TCP的保活机制。
+	- SO_RCVBUF：设置接收缓冲区的大小。
+	- SO_SNDBUF：设置发送缓冲区的大小
+    - SO_LINGER：设置linger选项
+option_value：指向保存选项值的缓冲区的指针。
+option_len：选项值的长度。
+    
+setsockopt函数的返回值为0表示设置成功，如果返回-1则表示设置失败
+```
+
+### `bind` 函数
+
+```c++
+int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+
+sockfd：这是由socket函数返回的套接字描述符。
+addr：这是一个指向sockaddr结构的指针，包含了你要绑定的地址和端口。
+addrlen：这个参数指定了addr结构的长度。
+    
+    bind函数返回值小于0，表示绑定失败
+```
+
+### `listen`函数
+
+```c++
+int listen(int sockfd, int backlog);
+
+sockfd：要设置为监听状态的套接字文件描述符。
+backlog：连接请求队列的最大长度。
+```
+
+### `accept`函数
+
+```C++
+int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+
+sockfd：是监听套接字的文件描述符。
+addr：是一个指向struct sockaddr类型的指针，用于接收客户端的套接字地址信息。
+addrlen：是一个指向socklen_t类型的指针，用于指定addr的大小，同时也会更新为实际接收到的客户端套接字地址的大小。
+    
+accept函数在调用时会阻塞程序，直到有客户端连接请求到达。一旦有连接请求到达，accept函数会创建一个新的套接字，并返回该新套接字的文件描述符。同时，将客户端的套接字地址信息存储在addr中，并更新addrlen为实际接收到的客户端套接字地址的大小。
+```
+
+### `send`函数
+
+```C++
+ssize_t send(int sockfd, const void *buf, size_t len, int flags);
+
+sockfd：是要发送数据的套接字的文件描述符。
+buf：是一个指向要发送的数据的指针。
+len：是要发送的数据的长度。
+flags：是一个标志参数，用于指定发送数据时的特殊选项。
+    
+    失败返回负值
+    
+send函数是一个阻塞函数，即在发送数据时可能会阻塞程序，直到数据完全发送或者发生错误。如果需要非阻塞发送，可以通过设置套接字为非阻塞模式或使用select等函数来进行管理。
+```
+
