@@ -16,10 +16,6 @@ WebServer::WebServer(int port, int trigMode, int timeoutMs, bool optLinger, // æ
     HttpConn::srcDir = srcDir_;
     HttpConn::userCnt = 0;
 
-    initEventMode_(trigMode);
-    if (initSocket_() == false)
-        isClose_ = true;
-
     if (openLog)
     {
         Log::instance().init(logLevel, "./log", ".log", logQueSize);
@@ -39,6 +35,12 @@ WebServer::WebServer(int port, int trigMode, int timeoutMs, bool optLinger, // æ
             // å†™æ—¥å¿—
         }
     }
+
+    initEventMode_(trigMode);
+    if (initSocket_() == false)
+        isClose_ = true;
+
+
 
     SqlConnPool::instance().init("localhost", sqlPort, sqlUser, sqlPwd, dbName, connPoolNum);
 };
