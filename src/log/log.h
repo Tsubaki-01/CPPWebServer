@@ -63,7 +63,7 @@ public:
     void write(int level, const char* format, ...); // 写入阻塞队列
     void flush(); // 强制刷新日志到文件一次。从阻塞队列取数据写入日志
 
-    int getLevel();
+    int getLogLevel();
     void setLevel(int level);
     bool isOpen() { return isOpen_; };
 };
@@ -79,7 +79,7 @@ enum {
 #define LOG_BASE(level, format, ...) \
     do {\
         Log& log = Log::instance();\
-        if (log.isOpen() && log.getLevel() <= level) {\
+        if (log.isOpen() && log.getLogLevel() <= level) {\
             log.write(level, format, ##__VA_ARGS__); \
             log.flush();\
         }\

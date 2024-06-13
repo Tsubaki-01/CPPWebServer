@@ -97,6 +97,7 @@ void Log::asyncWrite_()
     {
         std::lock_guard<std::mutex> lock(mtx_);
         fputs(str.c_str(), fp_);
+        fflush(fp_);
     }
 }; // 异步写日志的实际操作
 void Log::flushLogThread()
@@ -195,7 +196,7 @@ void Log::flush()
 }; // 强制刷新日志到文件一次。从阻塞队列取数据写入日志
 
 
-int Log::getLevel()
+int Log::getLogLevel()
 {
     std::lock_guard<std::mutex> lock(mtx_);
     return level_;

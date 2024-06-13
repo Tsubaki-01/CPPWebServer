@@ -15,7 +15,6 @@
 
 #include "epoll.h"
 #include "../log/log.h"
-#include "../log/blockdeque.h"
 #include "../timer/timer.h"
 #include "../pool/DBConnPool/sqlconnRAII.h"
 #include "../pool/ThreadPool/threadpool.h"
