@@ -69,8 +69,11 @@ public:
             tasks_.emplace(std::forward<T>(task));
         }
         cv_.notify_one();
-    }
-    ;
+    };
+    /*
+    模板类的成员函数定义需要与声明在同一文件
+    详见Note
+    */
 
 
 private:
