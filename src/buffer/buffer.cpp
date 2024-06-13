@@ -53,14 +53,14 @@ void Buffer::hasWritten(size_t len)
 
 void Buffer::retrieve(size_t len)
 {
-    assert(len < readableBytes());
+    assert(len <= readableBytes());
     readIndex_ += len;
 }; // 更新readIndex_
 
 
 void Buffer::retrieveUntil(const char* end)
 {
-    assert(readPtr() < end);
+    assert(readPtr() <= end);
     retrieve(end - readPtr());
 }; // 更新readIndex_
 

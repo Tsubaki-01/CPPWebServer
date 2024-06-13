@@ -16,6 +16,7 @@ WebServer::WebServer(int port, int trigMode, int timeoutMs, bool optLinger, // �
     HttpConn::srcDir = srcDir_;
     HttpConn::userCnt = 0;
 
+    initEventMode_(trigMode);
     if (openLog)
     {
         Log::instance().init(logLevel, "./log", ".log", logQueSize);
@@ -36,7 +37,6 @@ WebServer::WebServer(int port, int trigMode, int timeoutMs, bool optLinger, // �
         }
     }
 
-    initEventMode_(trigMode);
     if (initSocket_() == false)
         isClose_ = true;
 
@@ -66,11 +66,11 @@ bool WebServer::initSocket_()
     }
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
     addr.sin_family = AF_INET;
-    addr.sin_port = port_;
+    addr.sin_port = htons(port_);
 
     struct linger optlinger = { 0 };
     optlinger.l_onoff = openLinger_ ? 1 : 0;
-    optlinger.l_linger = timeoutMs_ / 1000;
+    optlinger.l_linger = 0;
 
     // 打开socket
     listenFd_ = socket(AF_INET, SOCK_STREAM, 0);
@@ -91,7 +91,7 @@ bool WebServer::initSocket_()
 
     // 设置socket属性
     int optval = 1;
-    ret = setsockopt(listenFd_, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const void*>(&optval), sizeof(int));
+    ret = setsockopt(listenFd_, SOL_SOCKET, SO_REUSEADDR, (const void*)&optval, sizeof(int));
     if (ret < 0)
     {
         LOG_ERROR("set socket setsockopt error !");// 写日志
@@ -100,7 +100,7 @@ bool WebServer::initSocket_()
     }
 
     // 绑定socket和端口
-    ret = bind(listenFd_, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr));
+    ret = bind(listenFd_, (struct sockaddr*)&addr, sizeof(addr));
     if (ret < 0)
     {
         LOG_ERROR("Bind Port:%d error!", port_);// 写日志
