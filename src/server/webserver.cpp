@@ -164,7 +164,7 @@ void WebServer::initEventMode_(int trigMode)
 int WebServer::setFdNonBlock(int fd)
 {
     assert(fd > 0);
-    return fcntl(fd, F_SETFL, fcntl(fd, F_GETFD, 0) | O_NONBLOCK);
+    return fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) | O_NONBLOCK);
 }
 
 void WebServer::addClient_(int fd, sockaddr_in addr)
